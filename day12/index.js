@@ -1,107 +1,97 @@
-// Activity 1
-const promise1 = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve("promise 1 resolved");
-  }, 2000);
-});
-const promise2 = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    reject("promise 2 rejected");
-  }, 2000);
-});
-const promise3 = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve("promise 3 resolved");
-  }, 2000);
-});
-
-promise1.then((val) => {
-  console.log(val);
-});
-promise2.catch((error) => console.log(error));
-
-// Activity 2
-async function fetchData1() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("fetchData1 resolved");
-    }, 500);
-  });
+// Activity 1 ans 2
+function func1() {
+  throw new Error("Error happen in func1");
 }
-function fetchData2() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("fetchData 2 resolved");
-    }, 500);
-  });
-}
-function fetchData3() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve("fetchData3 resolved");
-    }, 500);
-  });
-}
-function fetchData4() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      reject("fetchData3 rejected");
-    }, 500);
-  });
+function divide(a, b) {
+  if (b == 0) throw new Error("Can not divide by zero");
+  return a / b;
 }
 
-fetchData1()
-  .then((val) => {
-    console.log(val);
-    return fetchData2();
-  })
-  .then((val) => {
-    console.log(val);
-    return fetchData3();
-  })
-  .then((val) => {
-    console.log(val);
-  });
+try {
+  console.log("try log 0");
+  func1();
+  console.log("try log 1");
+  divide(2, 0);
+  console.log("try log 2");
+} catch (error) {
+  console.log("catch log 1");
+  console.log(error.message);
+} finally {
+  console.log("finally log");
+}
+
+class customError extends Error {
+  constructor(message) {
+    super("message from custom Error: " + message);
+  }
+}
+
+function func2() {
+  throw new customError("Error from func2");
+}
+
+try {
+  func2();
+} catch (error) {
+  console.log(error);
+}
 
 // Activity 3
-
-(async function () {
-  const val = await fetchData1();
-  console.log("from activity 3", val);
-  try {
-    const val2 = await fetchData4();
-  } catch (error) {
-    console.log("error: ", error);
+class ValidateInputError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "123ValidationError";
   }
-})();
+}
+
+function validateInput(input) {
+  if (!input || input.trim() == "")
+    throw new ValidateInputError("Input can not be empty");
+  return true;
+}
+
+try {
+  validateInput("");
+} catch (error) {
+  if (error instanceof ValidateInputError) {
+    console.log("validation error: " + error.message);
+  } else {
+    console.log("An unexpected error occurder: " + error.message);
+  }
+}
 
 // Activity 4
-const apiUrl = "https://api.github.com/";
-fetch(apiUrl)
-  .then((res) => res.json())
-  // .then((res) => console.log("api res from promise: ", res))
-  .catch((err) => console.log("api error from promise", err));
+const promise1 = new Promise((resolve, reject) => {
+  if (Math.random() > 0.5) resolve("promise resolved");
+  else reject("promise rejected");
+});
+promise1.then((val) => console.log(val)).catch((err) => console.log(err));
 
-const fetchData5 = async () => {
+async function handlePromise() {
   try {
-    let val = await fetch(apiUrl);
-    val = await val.json();
-    console.log("api res from async/await: ", val);
+    const result = await new Promise((resolve, reject) => {
+      if (Math.random() > 0.5) resolve("promise resolved");
+      else reject("promise rejected");
+    });
   } catch (error) {
-    console.log("error from async/await", error);
+    console.log("error from handlepromise: ", error);
   }
-};
+}
 
-fetchData5();
+handlePromise();
 
 // Activity 5
-(async () => {
+fetch("AnyUrl")
+  .then((res) => console.log(res))
+  .catch((err) => console.log(err.message));
+
+async function fetchUrl() {
   try {
-    const res = await Promise.all([promise1, promise3, fetchData1(), promise2]);
-    console.log("promise all", res);
-    const res2 = await Promise.race([promise1, promise3, promise2]);
-    console.log("promise race", res2);
+    const res = await fetch("AnyUrl");
+    res = await res.json();
   } catch (error) {
-    console.log("error: ", error);
+    console.log("error from fetchUrl async/await", error.message);
   }
-})();
+}
+
+fetchUrl();
